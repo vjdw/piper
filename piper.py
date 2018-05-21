@@ -3,12 +3,14 @@
 from curses import wrapper
 import json
 from collections import namedtuple
+from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 
 from logger import Logger
 from screen import Screen
 from menu import Menu
 from menu import MenuItem
 from mopidyproxy import MopidyProxy    
+from webserver import WebServer
 
 def draw_menu_to_screen(screen, menu):
     screen_row_index = 0
@@ -63,18 +65,18 @@ def wire_up_menus(menu, lcd):
 
 def menu_for_tracks_at_uri(mopidy, mopidy_folder_uri):
     response = mopidy.post("core.library.browse", mopidy_folder_uri)
-    responseJson = json.loads(response)
-    sortedResponseJson = reversed(sorted(responseJson["result"], key=lambda x: x["name"]))
-    menuItems = list(map(
+    response_json = json.loads(response)
+    sorted_response_json = reversed(sorted(response_json["result"], key=lambda x: x["name"]))
+    menu_items = list(map(
         lambda i: MenuItem(
             i["name"][12:].replace("_"," ").replace(".m4a",""),
             "core.tracklist.add",
             i["uri"]),
-        sortedResponseJson))
+        sorted_response_json))
 
-    menuItems = [elem for elem in menuItems if elem.target.endswith(".m4a")] 
+    menu_items = [elem for elem in menu_items if elem.target.endswith(".m4a")] 
 
-    return Menu(menuItems)
+    return Menu(menu_items)
 
 def main(mainscreen):
     logger = Logger("./log.txt")
@@ -85,6 +87,11 @@ def main(mainscreen):
 
     menu = arrange_menus(mopidy)
     wire_up_menus(menu, screen)
+
+    webserver = WebServer(menu, mopidy)
+    pool = ThreadPoolExecutor(5)
+    futures = []
+    futures.append(pool.submit(webserver.run))
 
     key = ''
     while True:
