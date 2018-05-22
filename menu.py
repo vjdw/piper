@@ -6,9 +6,9 @@ class Menu:
         self.viewtop_index = 0
 
 class MenuItem:
-    def __init__(self, text, method="", target="", active = False):
+    def __init__(self, text, method="", target=""):
         self.text = text
-        self.active = active
+        self.active = False
         self.method = method
         self.target = target
         self.child_menu = None

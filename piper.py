@@ -33,10 +33,10 @@ def draw_menu_to_screen(screen, menu):
     screen.refresh()
 
 def arrange_menus(mopidy):
-    menuitem_radmac = MenuItem("RadMac", "", "", True)
+    menuitem_radmac = MenuItem("RadMac")
     menuitem_radmac.child_menu = menu_for_tracks_at_uri(mopidy, "file:///media/data/get-iplayer-downloads")
 
-    menuitem_radio = MenuItem("Radio", "", "", True)
+    menuitem_radio = MenuItem("Radio")
     menuitem_radio.child_menu = Menu([
         menuitem_radmac,
         MenuItem("Classic FM", "core.tracklist.add", "tunein:station:s8439"),
@@ -48,15 +48,22 @@ def arrange_menus(mopidy):
         MenuItem("Eagle Radio", "core.tracklist.add", "tunein:station:s45515")
     ])
 
+    menuitem_playlists = MenuItem("Playlists")
+    menuitem_playlists.child_menu = menu_for_playlists(mopidy)
+
     return Menu([
                 menuitem_radio,
                 MenuItem("Play/Pause", "custom.togglepause"),
-                MenuItem("Playlists", "core.tracklist.add"),
+                menuitem_playlists,
                 MenuItem("Artists")
     ])
 
 def wire_up_menus(menu, lcd):
+    first_item = True
     for menu_item in menu.items:
+        if first_item:
+            menu_item.active = True
+            first_item = False
         if not menu_item.child_menu is None:
             menu_item.text = menu_item.text.ljust(lcd.width - 5) + ">>"
             menu_item.child_menu.parent_menu = menu
@@ -78,7 +85,22 @@ def menu_for_tracks_at_uri(mopidy, mopidy_folder_uri):
 
     return Menu(menu_items)
 
+def menu_for_playlists(mopidy):
+    response = mopidy.post("core.playlists.get_playlists")
+    response_json = json.loads(response)
+    sorted_response_json = sorted(response_json["result"], key=lambda x: x["name"])
+    menu_items = list(map(
+        lambda i: MenuItem(
+            i["name"],
+            "custom.addplaylist",
+            i["uri"]),
+        sorted_response_json))
+
+    return Menu(menu_items)
+
+webserver = None
 def main(mainscreen):
+    global webserver
     logger = Logger("./log.txt")
 
     mopidy = MopidyProxy(logger, "http://hunchcorn.local:6680/mopidy/rpc")
@@ -101,7 +123,7 @@ def main(mainscreen):
             menu.active_index += 1
         elif key == ord('k'):
             menu.active_index -= 1
-        elif key == 10:
+        elif key == 10: # enter
             activeItem = menu.items[menu.active_index]
             if not activeItem.child_menu is None:
                 menu = activeItem.child_menu
@@ -109,9 +131,14 @@ def main(mainscreen):
             elif activeItem.method == "custom.togglepause":
                 mopidy.toggle_pause()
             elif activeItem.method == "core.tracklist.add":
-                mopidy.post("core.tracklist.clear")
+                mopidy.tracklist_clear()
                 mopidy.post(activeItem.method, activeItem.target)
                 mopidy.play()
+            elif activeItem.method == "custom.addplaylist":
+                mopidy.tracklist_clear()
+                f = pool.submit(mopidy.tracklist_add_playlist, activeItem.target)
+                f.add_done_callback(mopidy.play)
+                futures.append(f)
             else:
                 mopidy.post(activeItem.method)
         elif key == ord('u'):
@@ -134,3 +161,4 @@ def main(mainscreen):
 
 if __name__ == "__main__":
     wrapper(main)
+    webserver.stop()

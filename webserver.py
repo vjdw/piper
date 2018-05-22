@@ -37,5 +37,8 @@ class WebServer:
         HTTPServer_RequestHandler.mopidy = mopidy
 
     def run(self):
-        server = HTTPServer(('', 8081), HTTPServer_RequestHandler)
-        server.serve_forever()
+        self.server = HTTPServer(('', 8081), HTTPServer_RequestHandler)
+        self.server.serve_forever()
+
+    def stop(self):
+        self.server.shutdown()
