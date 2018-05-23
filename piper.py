@@ -12,6 +12,7 @@ from menu import MenuItem
 from mopidyproxy import MopidyProxy    
 from webserver import WebServer
 from pagemanager import PageManager
+from mopidypage import MopidyPage
 
 def arrange_menus(mopidy):
     menuitem_radmac = MenuItem("RadMac")
@@ -39,17 +40,17 @@ def arrange_menus(mopidy):
                 MenuItem("Artists")
     ])
 
-def wire_up_menus(menu, lcd):
+def wire_up_menus(menu, screen_width):
     first_item = True
     for menu_item in menu.items:
         if first_item:
             menu_item.active = True
             first_item = False
         if not menu_item.child_menu is None:
-            menu_item.text = menu_item.text.ljust(lcd.width - 5) + ">>"
+            menu_item.text = menu_item.text.ljust(screen_width - 5) + ">>"
             menu_item.child_menu.parent_menu = menu
-            wire_up_menus(menu_item.child_menu, lcd)
-        menu_item.text = menu_item.text.ljust(lcd.width)
+            wire_up_menus(menu_item.child_menu, screen_width)
+        menu_item.text = menu_item.text.ljust(screen_width)
 
 def menu_for_tracks_at_uri(mopidy, mopidy_folder_uri):
     response = mopidy.post("core.library.browse", mopidy_folder_uri)
@@ -79,43 +80,42 @@ def menu_for_playlists(mopidy):
 
     return Menu(menu_items)
 
-webserver = None
-def main(mainscreen):
-    global webserver
+def main(win):
     logger = Logger("./log.txt")
 
-    mopidy = MopidyProxy(logger, "http://hunchcorn.local:6680/mopidy/rpc")
+    pool = ThreadPoolExecutor(5)
+    futures = []
 
     screen = Screen(21, 4)
 
+    mopidy = MopidyProxy(logger, "http://hunchcorn.local:6680/mopidy/rpc")
+
     menu = arrange_menus(mopidy)
-    wire_up_menus(menu, screen)
+    wire_up_menus(menu, screen.width)
 
     webserver = WebServer(menu, mopidy)
-    pool = ThreadPoolExecutor(5)
-    futures = []
     futures.append(pool.submit(webserver.run))
 
-    page_manager = PageManager(screen, menu, mopidy)
+    page_stack = [MopidyPage(menu, mopidy)]
+    page_manager = PageManager(screen, page_stack)
+    futures.append(pool.submit(page_manager.run))
 
     key = ''
     while True:
         if key == ord('q'):
+            webserver.stop()
+            page_manager.stop()
             break
         elif key == ord('j'):
             page_manager.down()
-            #self.main_menu.active_index += 1
         elif key == ord('k'):
             page_manager.up()
-            #self.main_menu.active_index -= 1
         elif key == 10: # enter
             page_manager.select()
         elif key == ord('u'):
             page_manager.back()
 
-        page_manager.draw_menu_to_screen()
         key = screen.get_char()
 
 if __name__ == "__main__":
     wrapper(main)
-    webserver.stop()

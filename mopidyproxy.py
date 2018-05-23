@@ -30,9 +30,11 @@ class MopidyProxy:
         response = self.post("core.playback.get_state")
         response_json = json.loads(response)
         if response_json["result"] == "playing":
-            return self.post("core.playback.pause")
+            self.post("core.playback.pause")
+            return "Pause"
         else:
-            return self.post("core.playback.play")
+            self.post("core.playback.play")
+            return "Play"
 
     def tracklist_clear(self):
         return self.post("core.tracklist.clear")
