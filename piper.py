@@ -11,26 +11,7 @@ from menu import Menu
 from menu import MenuItem
 from mopidyproxy import MopidyProxy    
 from webserver import WebServer
-
-def draw_menu_to_screen(screen, menu):
-    screen_row_index = 0
-    for i in range(menu.viewtop_index, menu.viewtop_index + screen.height):
-        if i >= len(menu.items):
-            break
-        menuitem = menu.items[i]
-
-        left_cursor = ' '
-        right_cursor = ''
-        lineText = menuitem.text[0:screen.width-2]
-        if menu.active_index == i:
-            left_cursor = '['
-            right_cursor = ']'
-            lineText = menuitem.text[0:screen.width-3]
-        screen.write_line(screen_row_index, 0, '{}{}{}'.format(left_cursor, lineText, right_cursor))
-
-        screen_row_index += 1
-
-    screen.refresh()
+from pagemanager import PageManager
 
 def arrange_menus(mopidy):
     menuitem_radmac = MenuItem("RadMac")
@@ -115,48 +96,24 @@ def main(mainscreen):
     futures = []
     futures.append(pool.submit(webserver.run))
 
+    page_manager = PageManager(screen, menu, mopidy)
+
     key = ''
     while True:
         if key == ord('q'):
             break
         elif key == ord('j'):
-            menu.active_index += 1
+            page_manager.down()
+            #self.main_menu.active_index += 1
         elif key == ord('k'):
-            menu.active_index -= 1
+            page_manager.up()
+            #self.main_menu.active_index -= 1
         elif key == 10: # enter
-            activeItem = menu.items[menu.active_index]
-            if not activeItem.child_menu is None:
-                menu = activeItem.child_menu
-                screen.clear()
-            elif activeItem.method == "custom.togglepause":
-                mopidy.toggle_pause()
-            elif activeItem.method == "core.tracklist.add":
-                mopidy.tracklist_clear()
-                mopidy.post(activeItem.method, activeItem.target)
-                mopidy.play()
-            elif activeItem.method == "custom.addplaylist":
-                mopidy.tracklist_clear()
-                f = pool.submit(mopidy.tracklist_add_playlist, activeItem.target)
-                f.add_done_callback(mopidy.play)
-                futures.append(f)
-            else:
-                mopidy.post(activeItem.method)
+            page_manager.select()
         elif key == ord('u'):
-            if not menu.parent_menu is None:
-                menu = menu.parent_menu
-                screen.clear()
+            page_manager.back()
 
-        # menu bounds check and scrolling
-        if menu.active_index >= len(menu.items):
-            menu.active_index = len(menu.items) - 1
-        elif menu.active_index >= menu.viewtop_index + screen.height:
-            menu.viewtop_index = 1 + menu.active_index - screen.height
-        elif menu.active_index < 0:
-            menu.active_index = 0
-        elif menu.active_index < menu.viewtop_index:
-            menu.viewtop_index = menu.active_index
-
-        draw_menu_to_screen(screen, menu)
+        page_manager.draw_menu_to_screen()
         key = screen.get_char()
 
 if __name__ == "__main__":
