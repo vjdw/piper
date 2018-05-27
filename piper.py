@@ -4,15 +4,16 @@ from curses import wrapper
 import json
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
+from time import sleep
 
 from logger import Logger
 from screen import Screen
+from lcddriver import lcd
 from menu import Menu
 from menu import MenuItem
 from mopidyproxy import MopidyProxy    
 from webserver import WebServer
-from pagemanager import PageManager
-from mopidypage import MopidyPage
+import RPi.GPIO as GPIO
 
 def arrange_menus(mopidy):
     menuitem_radmac = MenuItem("RadMac")
@@ -80,13 +81,48 @@ def menu_for_playlists(mopidy):
 
     return Menu(menu_items)
 
+menu_cmd = 0
+def up_callback(channel):  
+    global menu_cmd
+    menu_cmd = ord('k')
+
+def down_callback(channel):  
+    global menu_cmd
+    menu_cmd = ord('j')
+
+def select_callback(channel):
+    global menu_cmd
+    menu_cmd = 10
+
+def back_callback(channel):
+    global menu_cmd
+    menu_cmd = ord('u')
+
+def configure_gpio():
+    GPIO.setmode(GPIO.BCM)  
+  
+    # GPIO 23 & 24 set up as inputs. One pulled up, the other down.  
+    # 23 will go to GND when button pressed and 24 will go to 3V3 (3.3V)  
+    # this enables us to demonstrate both rising and falling edge detection  
+    GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)  
+    GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+    GPIO.add_event_detect(27, GPIO.FALLING, callback=back_callback, bouncetime=300)  
+    GPIO.add_event_detect(22, GPIO.FALLING, callback=select_callback, bouncetime=300)  
+    GPIO.add_event_detect(23, GPIO.FALLING, callback=down_callback, bouncetime=300)  
+    GPIO.add_event_detect(24, GPIO.FALLING, callback=up_callback, bouncetime=300)  
+
 def main(win):
+    global menu_cmd
     logger = Logger("./log.txt")
 
     pool = ThreadPoolExecutor(5)
     futures = []
 
-    screen = Screen(21, 4)
+    #screen = Screen(21, 4)
+    screen = lcd()
 
     mopidy = MopidyProxy(logger, "http://hunchcorn.local:6680/mopidy/rpc")
 
@@ -95,6 +131,8 @@ def main(win):
 
     webserver = WebServer(menu, mopidy)
     futures.append(pool.submit(webserver.run))
+
+    configure_gpio()
 
     main_page = MopidyPage(menu, mopidy)
     page_manager = PageManager(screen, main_page)
@@ -105,6 +143,7 @@ def main(win):
         if key == ord('q'):
             webserver.stop()
             page_manager.stop()
+            GPIO.cleanup()
             break
         elif key == ord('j'):
             page_manager.down()
@@ -115,7 +154,19 @@ def main(win):
         elif key == ord('u'):
             page_manager.back()
 
-        key = screen.get_char()
+#        key = screen.get_char()
+        sleep(0.1)
+        key = menu_cmd
+        menu_cmd = 0
 
 if __name__ == "__main__":
     wrapper(main)
+
+
+#try:  
+#    print "Waiting for falling edge on port 23"  
+#    GPIO.wait_for_edge(23, GPIO.FALLING)  
+#    print "Falling edge detected. Here endeth the second lesson."  
+#  
+#except KeyboardInterrupt:  
+#    GPIO.cleanup()       # clean up GPIO on CTRL+C exit  
