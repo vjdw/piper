@@ -3,6 +3,6 @@ class MessagePage:
         self.msgs = msgs
 
     def draw_to_screen(self, screen):
-        screen.clear()
+        #screen.clear()
         for i,msg in enumerate(self.msgs):
-            screen.write_line(i, 0, msg)
+            screen.write_line(msg, i)

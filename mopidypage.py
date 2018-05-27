@@ -57,11 +57,11 @@ class MopidyPage:
             menuitem = self.menu.items[i]
 
             left_cursor = right_cursor = ' '
-            lineText = menuitem.text[0:screen.width-2]
+            lineText = menuitem.text[0:screen.width-1]
             if self.menu.active_index == i:
                 left_cursor = '['
                 right_cursor = ']'
-                lineText = menuitem.text[0:screen.width-3]
+                lineText = menuitem.text[0:screen.width-2]
 
             #screen.write_line(screen_row_index, 0, '{}{}{}'.format(left_cursor, lineText, right_cursor))
             screen.write_line('{}{}{}'.format(left_cursor, lineText, right_cursor), screen_row_index)

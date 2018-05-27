@@ -12,6 +12,8 @@ from lcddriver import lcd
 from menu import Menu
 from menu import MenuItem
 from mopidyproxy import MopidyProxy    
+from mopidypage import MopidyPage
+from pagemanager import PageManager
 from webserver import WebServer
 import RPi.GPIO as GPIO
 
@@ -138,8 +140,12 @@ def main(win):
     page_manager = PageManager(screen, main_page)
     futures.append(pool.submit(page_manager.run))
 
-    key = ''
     while True:
+#        key = screen.get_char()
+        sleep(0.1)
+        key = menu_cmd
+        menu_cmd = 0
+
         if key == ord('q'):
             webserver.stop()
             page_manager.stop()
@@ -153,11 +159,6 @@ def main(win):
             page_manager.select()
         elif key == ord('u'):
             page_manager.back()
-
-#        key = screen.get_char()
-        sleep(0.1)
-        key = menu_cmd
-        menu_cmd = 0
 
 if __name__ == "__main__":
     wrapper(main)

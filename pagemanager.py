@@ -18,7 +18,7 @@ class PageManager:
     def run(self):
         while not self.stop_running:
             self.draw()
-            time.sleep(0.1)
+            time.sleep(0.2)
 
     def stop(self):
         self.stop_running = True
@@ -41,4 +41,4 @@ class PageManager:
 
     def draw(self):
         self.top_page.draw_to_screen(self.screen)
-        self.screen.refresh()
+        #self.screen.refresh()
