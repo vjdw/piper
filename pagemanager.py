@@ -4,9 +4,9 @@ import time
 from screen import Screen
 
 class PageManager:
-    def __init__(self, screen, page_stack):
+    def __init__(self, screen, main_page):
         self.screen = screen
-        self.page_stack = page_stack
+        self.page_stack = [main_page]
         self.pool = ThreadPoolExecutor(5)
         self.stop_running = False
 

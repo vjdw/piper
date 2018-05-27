@@ -96,8 +96,8 @@ def main(win):
     webserver = WebServer(menu, mopidy)
     futures.append(pool.submit(webserver.run))
 
-    page_stack = [MopidyPage(menu, mopidy)]
-    page_manager = PageManager(screen, page_stack)
+    main_page = MopidyPage(menu, mopidy)
+    page_manager = PageManager(screen, main_page)
     futures.append(pool.submit(page_manager.run))
 
     key = ''
