@@ -84,21 +84,21 @@ def menu_for_playlists(mopidy):
     return Menu(menu_items)
 
 menu_cmd = 0
-def up_callback(channel):  
-    global menu_cmd
-    menu_cmd = ord('k')
+def up_callback(channel):
+    global page_manager
+    page_manager.up()
 
 def down_callback(channel):  
-    global menu_cmd
-    menu_cmd = ord('j')
+    global page_manager
+    page_manager.down()
 
 def select_callback(channel):
-    global menu_cmd
-    menu_cmd = 10
+    global page_manager
+    page_manager.select()
 
 def back_callback(channel):
-    global menu_cmd
-    menu_cmd = ord('u')
+    global page_manager
+    page_manager.back()
 
 def configure_gpio():
     GPIO.setmode(GPIO.BCM)  
@@ -111,13 +111,14 @@ def configure_gpio():
     GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-    GPIO.add_event_detect(27, GPIO.FALLING, callback=back_callback, bouncetime=300)  
-    GPIO.add_event_detect(22, GPIO.FALLING, callback=select_callback, bouncetime=300)  
-    GPIO.add_event_detect(23, GPIO.FALLING, callback=down_callback, bouncetime=300)  
-    GPIO.add_event_detect(24, GPIO.FALLING, callback=up_callback, bouncetime=300)  
+    GPIO.add_event_detect(27, GPIO.FALLING, callback=back_callback, bouncetime=500)  
+    GPIO.add_event_detect(22, GPIO.FALLING, callback=select_callback, bouncetime=500)  
+    GPIO.add_event_detect(23, GPIO.FALLING, callback=down_callback, bouncetime=500)  
+    GPIO.add_event_detect(24, GPIO.FALLING, callback=up_callback, bouncetime=500)  
 
 def main(win):
     global menu_cmd
+    global page_manager
     logger = Logger("./log.txt")
 
     pool = ThreadPoolExecutor(5)
@@ -142,23 +143,22 @@ def main(win):
 
     while True:
 #        key = screen.get_char()
-        sleep(0.1)
-        key = menu_cmd
-        menu_cmd = 0
+        sleep(2)
+        key = 0
 
         if key == ord('q'):
             webserver.stop()
             page_manager.stop()
             GPIO.cleanup()
             break
-        elif key == ord('j'):
-            page_manager.down()
-        elif key == ord('k'):
-            page_manager.up()
-        elif key == 10: # enter
-            page_manager.select()
-        elif key == ord('u'):
-            page_manager.back()
+        # elif key == ord('j'):
+        #     page_manager.down()
+        # elif key == ord('k'):
+        #     page_manager.up()
+        # elif key == 10: # enter
+        #     page_manager.select()
+        # elif key == ord('u'):
+        #     page_manager.back()
 
 if __name__ == "__main__":
     wrapper(main)

@@ -81,14 +81,18 @@ class lcd:
     self.device.write_cmd(data | En | LCD_BACKLIGHT)
     sleep(0.0005)
     self.device.write_cmd(((data & ~En) | LCD_BACKLIGHT))
-    sleep(0.001)
+    sleep(0.0002)
 
   def write_four_bits(self, data):
-    self.device.write_cmd(data | LCD_BACKLIGHT)
     self.strobe(data)
 
   def write(self, cmd, mode=0):
     """write a command to lcd"""
+
+    """make sure EN is low"""
+    self.device.write_cmd(LCD_BACKLIGHT)
+    sleep(0.0002)
+
     self.write_four_bits(mode | (cmd & 0xF0))
     self.write_four_bits(mode | ((cmd << 4) & 0xF0))
 

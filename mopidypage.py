@@ -50,19 +50,18 @@ class MopidyPage:
         elif self.menu.active_index < self.menu.viewtop_index:
             self.menu.viewtop_index = self.menu.active_index
 
-        screen_row_index = 0
-        for i in range(self.menu.viewtop_index, self.menu.viewtop_index + screen.height):
-            if i >= len(self.menu.items):
+        for screen_row_index, menu_item_index in enumerate(range(self.menu.viewtop_index, self.menu.viewtop_index + screen.height)):
+            if menu_item_index >= len(self.menu.items):
                 break
-            menuitem = self.menu.items[i]
+            menuitem = self.menu.items[menu_item_index]
 
-            left_cursor = right_cursor = ' '
+            left_cursor = ' '
+            right_cursor = ''
             lineText = menuitem.text[0:screen.width-1]
-            if self.menu.active_index == i:
+            if self.menu.active_index == menu_item_index:
                 left_cursor = '['
                 right_cursor = ']'
                 lineText = menuitem.text[0:screen.width-2]
 
             #screen.write_line(screen_row_index, 0, '{}{}{}'.format(left_cursor, lineText, right_cursor))
             screen.write_line('{}{}{}'.format(left_cursor, lineText, right_cursor), screen_row_index)
-            screen_row_index += 1

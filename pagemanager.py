@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from curses import wrapper
 import time
+import threading
 from screen import Screen
 
 class PageManager:
@@ -10,35 +11,47 @@ class PageManager:
         self.pool = ThreadPoolExecutor(5)
         self.stop_running = False
 
+        self.lock = threading.Lock()
+
     def get_top_page(self):
         return self.page_stack[-1]
 
     top_page = property(get_top_page)
 
     def run(self):
-        while not self.stop_running:
+        with self.lock:
             self.draw()
-            time.sleep(0.2)
+        while not self.stop_running:
+            #self.draw()
+            time.sleep(1.1)
 
     def stop(self):
         self.stop_running = True
 
     def up(self):
-        self.top_page.up()
+        with self.lock:
+            self.top_page.up()
+            self.draw()
 
     def down(self):
-        self.top_page.down()
+        with self.lock:
+            self.top_page.down()
+            self.draw()
 
     def select(self):
-        splash_info_page = self.top_page.select()
-        if not splash_info_page is None:
-            self.page_stack.append(splash_info_page)
-            time.sleep(1)
-            self.page_stack.pop()
+        with self.lock:
+            splash_info_page = self.top_page.select()
+            if not splash_info_page is None:
+                self.page_stack.append(splash_info_page)
+                self.draw()
+                time.sleep(3.5)
+                self.page_stack.pop()
+            self.draw()
 
     def back(self):
-        self.top_page.back()
+        with self.lock:
+            self.top_page.back()
+            self.draw()
 
     def draw(self):
         self.top_page.draw_to_screen(self.screen)
-        #self.screen.refresh()
