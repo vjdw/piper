@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 
-from curses import wrapper
 import json
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from time import sleep
 
 from logger import Logger
-from screen import Screen
-from lcddriver import lcd
 from menu import Menu
 from menu import MenuItem
 from mopidyproxy import MopidyProxy    
 from mopidypage import MopidyPage
 from pagemanager import PageManager
 from webserver import WebServer
-import RPi.GPIO as GPIO
+
+mode = "screen" # "lcd"
+
+if mode == "lcd":
+    import RPi.GPIO as GPIO
+    from lcddriver import lcd
+else:
+    from screen import Screen
+    from curses import wrapper
 
 def arrange_menus(mopidy):
     menuitem_radmac = MenuItem("RadMac")
@@ -119,13 +124,17 @@ def configure_gpio():
 def main(win):
     global menu_cmd
     global page_manager
+    print("start")
     logger = Logger("./log.txt")
 
     pool = ThreadPoolExecutor(5)
     futures = []
 
-    #screen = Screen(21, 4)
-    screen = lcd()
+    if mode == "lcd":
+        screen = lcd()
+        configure_gpio()
+    else:
+        screen = Screen(20, 4)
 
     mopidy = MopidyProxy(logger, "http://hunchcorn.local:6680/mopidy/rpc")
 
@@ -135,33 +144,35 @@ def main(win):
     webserver = WebServer(menu, mopidy)
     futures.append(pool.submit(webserver.run))
 
-    configure_gpio()
-
     main_page = MopidyPage(menu, mopidy)
     page_manager = PageManager(screen, main_page)
     futures.append(pool.submit(page_manager.run))
 
     while True:
-#        key = screen.get_char()
-        sleep(2)
-        key = 0
+        if mode == "led":
+            sleep(5)
+        else:
+            key = screen.get_char()
 
-        if key == ord('q'):
-            webserver.stop()
-            page_manager.stop()
-            GPIO.cleanup()
-            break
-        # elif key == ord('j'):
-        #     page_manager.down()
-        # elif key == ord('k'):
-        #     page_manager.up()
-        # elif key == 10: # enter
-        #     page_manager.select()
-        # elif key == ord('u'):
-        #     page_manager.back()
+            if key == ord('q'):
+                webserver.stop()
+                page_manager.stop()
+                break
+            elif key == ord('j'):
+                page_manager.down()
+            elif key == ord('k'):
+                page_manager.up()
+            elif key == 10: # enter
+                page_manager.select()
+            elif key == ord('u'):
+                page_manager.back()
 
 if __name__ == "__main__":
-    wrapper(main)
+    if mode == "lcd":
+        main(None)
+        GPIO.cleanup()
+    else:
+        wrapper(main)
 
 
 #try:  
