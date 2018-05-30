@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from messagepage import MessagePage
+from pagemanagercommand import PageManagerCommand
 
 class MopidyPage:
     def __init__(self, menu, mopidy):
@@ -10,9 +11,11 @@ class MopidyPage:
 
     def up(self):
         self.menu.active_index -= 1
+        return PageManagerCommand.RedrawPage()
 
     def down(self):
         self.menu.active_index += 1
+        return PageManagerCommand.RedrawPage()
 
     def select(self):
         splash_info_page = None
@@ -33,11 +36,16 @@ class MopidyPage:
             splash_info_page = MessagePage(["Adding " + activeItem.text, "Please wait..."])
         else:
             self.mopidy.post(activeItem.method)
-        return splash_info_page
+
+        if splash_info_page is None:
+            return PageManagerCommand.RedrawPage()
+        else:
+            return PageManagerCommand.SplashPage(splash_info_page)
 
     def back(self):
         if not self.menu.parent_menu is None:
             self.menu = self.menu.parent_menu
+            return PageManagerCommand.RedrawPage()
 
     def draw_to_screen(self, screen):
         # menu bounds check and scrolling
