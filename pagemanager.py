@@ -29,6 +29,7 @@ class PageManager:
         while not self.stop_running:
             #self.draw()
             time.sleep(1.1)
+        self.idle_timer.cancel()
 
     def stop(self):
         self.stop_running = True
