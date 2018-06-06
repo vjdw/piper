@@ -68,8 +68,9 @@ class PageManager:
         elif page_command.cmd == PageManagerCommand.splashpage_command:
             self.page_stack.append(page_command.arg)
             self.draw()
-            time.sleep(3.5)
+            time.sleep(3)
             self.page_stack.pop()
+            self.draw()
         elif page_command.cmd == PageManagerCommand.close_command:
             self.page_stack.pop()
             self.draw()
@@ -84,5 +85,5 @@ class PageManager:
     def reset_idle_timer(self):
         if not self.idle_timer is None:
             self.idle_timer.cancel()
-        self.idle_timer = Timer(3, self.display_idle_page)
+        self.idle_timer = Timer(10, self.display_idle_page)
         self.idle_timer.start()

@@ -14,6 +14,7 @@ from pagemanager import PageManager
 from webserver import WebServer
 
 mode = "screen" # "lcd"
+mode = "lcd"
 
 if mode == "lcd":
     import RPi.GPIO as GPIO
@@ -111,15 +112,15 @@ def configure_gpio():
     # GPIO 23 & 24 set up as inputs. One pulled up, the other down.  
     # 23 will go to GND when button pressed and 24 will go to 3V3 (3.3V)  
     # this enables us to demonstrate both rising and falling edge detection  
-    GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)  
-    GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  
+    GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    GPIO.add_event_detect(27, GPIO.FALLING, callback=back_callback, bouncetime=500)  
-    GPIO.add_event_detect(22, GPIO.FALLING, callback=select_callback, bouncetime=500)  
-    GPIO.add_event_detect(23, GPIO.FALLING, callback=down_callback, bouncetime=500)  
-    GPIO.add_event_detect(24, GPIO.FALLING, callback=up_callback, bouncetime=500)  
+    GPIO.add_event_detect(27, GPIO.RISING, callback=back_callback, bouncetime=50)  
+    GPIO.add_event_detect(22, GPIO.RISING, callback=select_callback, bouncetime=50)  
+    GPIO.add_event_detect(23, GPIO.RISING, callback=down_callback, bouncetime=50)  
+    GPIO.add_event_detect(24, GPIO.RISING, callback=up_callback, bouncetime=50)  
 
 def main(win):
     global menu_cmd
@@ -149,7 +150,7 @@ def main(win):
     futures.append(pool.submit(page_manager.run))
 
     while True:
-        if mode == "led":
+        if mode == "lcd":
             sleep(5)
         else:
             key = screen.get_char()
