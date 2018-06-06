@@ -13,8 +13,8 @@ from mopidypage import MopidyPage
 from pagemanager import PageManager
 from webserver import WebServer
 
-mode = "screen" # "lcd"
-mode = "lcd"
+mode = "screen"
+#mode = "lcd"
 
 if mode == "lcd":
     import RPi.GPIO as GPIO
@@ -109,9 +109,6 @@ def back_callback(channel):
 def configure_gpio():
     GPIO.setmode(GPIO.BCM)  
   
-    # GPIO 23 & 24 set up as inputs. One pulled up, the other down.  
-    # 23 will go to GND when button pressed and 24 will go to 3V3 (3.3V)  
-    # this enables us to demonstrate both rising and falling edge detection  
     GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  
     GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)

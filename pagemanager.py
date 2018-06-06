@@ -11,11 +11,11 @@ class PageManager:
     def __init__(self, screen, main_page):
         self.screen = screen
         self.page_stack = [main_page]
+        self.page_stack_lock = threading.RLock()
         self.pool = ThreadPoolExecutor(5)
         self.stop_running = False
 
         self.idle_timer = None
-        self.lock = threading.RLock()
 
     def get_top_page(self):
         return self.page_stack[-1]
@@ -24,7 +24,7 @@ class PageManager:
 
     def run(self):
         self.reset_idle_timer()
-        with self.lock:
+        with self.page_stack_lock:
             self.draw()
         while not self.stop_running:
             #self.draw()
@@ -35,48 +35,49 @@ class PageManager:
 
     def up(self):
         self.reset_idle_timer()
-        with self.lock:
+        with self.page_stack_lock:
             page_command = self.top_page.up()
             self.process_page_command(page_command)
 
     def down(self):
         self.reset_idle_timer()
-        with self.lock:
+        with self.page_stack_lock:
             page_command = self.top_page.down()
             self.process_page_command(page_command)
 
     def select(self):
         self.reset_idle_timer()
-        with self.lock:
+        with self.page_stack_lock:
             page_command = self.top_page.select()
             self.process_page_command(page_command)
 
     def back(self):
         self.reset_idle_timer()
-        with self.lock:
+        with self.page_stack_lock:
             page_command = self.top_page.back()
             self.process_page_command(page_command)
 
     def process_page_command(self, page_command):
-        if page_command is None:
-            return
-        elif page_command.cmd == PageManagerCommand.redraw_command:
-            self.draw()
-        elif page_command.cmd == PageManagerCommand.displaypage_command:
-            self.page_stack.append(page_command.arg)
-            self.draw()
-        elif page_command.cmd == PageManagerCommand.splashpage_command:
-            self.page_stack.append(page_command.arg)
-            self.draw()
-            time.sleep(3)
-            self.page_stack.pop()
-            self.draw()
-        elif page_command.cmd == PageManagerCommand.close_command:
-            self.page_stack.pop()
-            self.draw()
+        with self.page_stack_lock:
+            if page_command is None:
+                return
+            elif page_command.cmd == PageManagerCommand.redraw_command:
+                self.draw()
+            elif page_command.cmd == PageManagerCommand.displaypage_command:
+                self.page_stack.append(page_command.arg)
+                self.draw()
+            elif page_command.cmd == PageManagerCommand.splashpage_command:
+                self.page_stack.append(page_command.arg)
+                self.draw()
+                time.sleep(3)
+                self.page_stack.pop()
+                self.draw()
+            elif page_command.cmd == PageManagerCommand.close_command:
+                self.page_stack.pop()
+                self.draw()
 
     def draw(self):
-        with self.lock:
+        with self.page_stack_lock:
             self.top_page.draw_to_screen(self.screen)
 
     def display_idle_page(self):
