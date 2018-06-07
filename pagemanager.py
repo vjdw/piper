@@ -82,7 +82,7 @@ class PageManager:
             self.top_page.draw_to_screen(self.screen)
 
     def display_idle_page(self):
-        self.process_page_command(PageManagerCommand.DisplayPage(StatusPage()))
+        self.process_page_command(PageManagerCommand.DisplayPage(StatusPage(self.screen)))
 
     def reset_idle_timer(self):
         if not self.idle_timer is None:
