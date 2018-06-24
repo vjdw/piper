@@ -41,16 +41,26 @@ def back_callback(channel):
 
 def configure_gpio():
     GPIO.setmode(GPIO.BCM)  
-  
-    GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  
-    GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    GPIO.add_event_detect(27, GPIO.RISING, callback=back_callback, bouncetime=50)  
-    GPIO.add_event_detect(22, GPIO.RISING, callback=select_callback, bouncetime=50)  
-    GPIO.add_event_detect(23, GPIO.RISING, callback=down_callback, bouncetime=50)  
-    GPIO.add_event_detect(24, GPIO.RISING, callback=up_callback, bouncetime=50)  
+    back_pin = 17
+    select_pin = 26
+    down_pin = 24
+    up_pin = 9
+    sparebuttonleft_pin = 14
+    sparebuttonright_pin = 20 
+
+    GPIO.setup(back_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  
+    GPIO.setup(select_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(down_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(up_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(sparebuttonright_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(sparebuttonleft_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+    bouncetime = 300
+    GPIO.add_event_detect(back_pin, GPIO.RISING, callback=back_callback, bouncetime=bouncetime)
+    GPIO.add_event_detect(select_pin, GPIO.RISING, callback=select_callback, bouncetime=bouncetime)
+    GPIO.add_event_detect(down_pin, GPIO.RISING, callback=down_callback, bouncetime=bouncetime)
+    GPIO.add_event_detect(up_pin, GPIO.RISING, callback=up_callback, bouncetime=bouncetime)
 
 def main(win):
     global page_manager

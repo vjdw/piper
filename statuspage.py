@@ -108,8 +108,15 @@ class StatusPage:
             if now_temp < today_temp_min:
                 today_temp_min = now_temp
 
-            self.weather_3 = "2D:{}/{}ßC {}mm".format(today_temp_min, today_temp_max, today_rain_mm)
-            self.weather_4 = "2M:{}/{}ßC {}mm".format(tomorrow_temp_min, tomorrow_temp_max, tomorrow_rain_mm)
+            today_rain_text = "{}mm".format(round(today_rain_mm, 2))
+            if (today_rain_mm == 0):
+                today_rain_text = "dry"
+            tomorrow_rain_text = "{}mm".format(round(tomorrow_rain_mm, 2))
+            if (tomorrow_rain_mm == 0):
+                tomorrow_rain_text = "dry"
+
+            self.weather_3 = "2D:{}/{}ßC {}".format(today_temp_min, today_temp_max, today_rain_text)
+            self.weather_4 = "2M:{}/{}ßC {}".format(tomorrow_temp_min, tomorrow_temp_max, tomorrow_rain_text)
         except:
             self.weather_3 = "forecast error"
             self.weather_4 = ""
