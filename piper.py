@@ -39,6 +39,19 @@ def back_callback(channel):
     global page_manager
     page_manager.back()
 
+def configure_lcd(lcd):
+    segs = [
+        [0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111],
+        [0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111],
+        [0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111],
+        [0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111],
+        [0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111],
+        [0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111],
+        [0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111],
+        [0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111]]
+
+    for i in range(8): lcd.createChar(i, segs[i])
+
 def configure_gpio():
     GPIO.setmode(GPIO.BCM)  
 
@@ -72,6 +85,7 @@ def main(win):
 
     if mode == "lcd":
         screen = lcd()
+        configure_lcd(screen)
         configure_gpio()
     else:
         screen = Screen(20, 4)

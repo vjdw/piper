@@ -76,6 +76,12 @@ class lcd:
     self.write(LCD_ENTRYMODESET | LCD_ENTRYLEFT)
     sleep(0.2)
 
+  def createChar(self, location, bitmap):
+    self.write(LCD_SETCGRAMADDR | ((location & 7) << 3))
+    for bitmapRow in bitmap:
+      self.write(bitmapRow, True)
+    self.write(LCD_SETDDRAMADDR)
+
   def strobe(self, data):
     """clocks EN to latch command"""
     self.device.write_cmd(data | En | LCD_BACKLIGHT)

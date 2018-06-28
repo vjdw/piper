@@ -79,41 +79,60 @@ class StatusPage:
             tomorrow = today + 1 # wrap round 365/366 days
             today_temp_max = -999
             today_temp_min = 999
-            today_rain_mm = 0
+            today_rain_mm = {0:-1,1:-1,2:-1,3:-1,4:-1,5:-1,6:-1,7:-1}
             tomorrow_temp_max = -999
             tomorrow_temp_min = 999
-            tomorrow_rain_mm = 0
+            tomorrow_rain_mm = {0:-1,1:-1,2:-1,3:-1,4:-1,5:-1,6:-1,7:-1}
             
             for forecast in forecastResponse.json().get('list'):
-                forecast_localtime = time.localtime(int(forecast['dt']))
+                forecast_time = time.gmtime(int(forecast['dt']))
+                forecast_threehourly_index = forecast_time.tm_hour / 3
                 forecast_temp = self.to_celsius(forecast['main']['temp'])
 
-                if forecast_localtime.tm_yday == today:
+                if forecast_time.tm_yday == today:
                     if today_temp_max < forecast_temp:
                         today_temp_max = forecast_temp
                     if today_temp_min > forecast_temp:
                         today_temp_min = forecast_temp
                     if 'rain' in forecast:
-                        today_rain_mm = today_rain_mm + sum(forecast['rain'].values())
-                elif forecast_localtime.tm_yday == tomorrow:
+                        today_rain_mm[forecast_threehourly_index] = forecast['rain']['3h']
+                    else:
+                        today_rain_mm[forecast_threehourly_index] = 0
+                elif forecast_time.tm_yday == tomorrow:
                     if tomorrow_temp_max < forecast_temp:
                         tomorrow_temp_max = forecast_temp
                     if tomorrow_temp_min > forecast_temp:
                         tomorrow_temp_min = forecast_temp
                     if 'rain' in forecast:
-                        tomorrow_rain_mm = tomorrow_rain_mm + sum(forecast['rain'].values())
+                        tomorrow_rain_mm[forecast_threehourly_index] = forecast['rain']['3h']
+                    else:
+                        tomorrow_rain_mm[forecast_threehourly_index] = 0
 
             if now_temp > today_temp_max:
                 today_temp_max = now_temp
             if now_temp < today_temp_min:
                 today_temp_min = now_temp
 
-            today_rain_text = "{}mm".format(round(today_rain_mm, 2))
-            if (today_rain_mm == 0):
-                today_rain_text = "dry"
-            tomorrow_rain_text = "{}mm".format(round(tomorrow_rain_mm, 2))
-            if (tomorrow_rain_mm == 0):
-                tomorrow_rain_text = "dry"
+            # (These values multiplied by 3 because forecast is in 3 hour blocks)
+            # Very light rain 	precipitation rate is < 0.25 mm/hour
+            # Light rain    	precipitation rate is between 0.25mm/hour and 1.0mm/hour
+            # Moderate rain 	precipitation rate is between 1.0 mm/hour and 4.0 mm/hour
+            # Heavy rain    	precipitation rate is between 4.0 mm/hour and 16.0 mm/hour
+            # Very heavy rain   precipitation rate is between 16.0 mm/hour and 50 mm/hour
+            # Extreme rain 	    precipitation rate is > 50.0 mm/hour 
+            bar_char_lookup = {48:"\x07",24:"\x06",12:"\x05",6:"\x04",3:"\x03",1.5:"\x02",0.75:"\x01",0:"\x00",-1:".",-2:" "}
+            today_rain_text = ""
+            for key in today_rain_mm:
+                for threshold in bar_char_lookup:
+                    if today_rain_mm[key] > threshold:
+                        today_rain_text += bar_char_lookup[threshold]
+                        break
+            tomorrow_rain_text = ""
+            for key in tomorrow_rain_mm:
+                for threshold in bar_char_lookup:
+                    if tomorrow_rain_mm[key] > threshold:
+                        tomorrow_rain_text += bar_char_lookup[threshold]
+                        break
 
             self.weather_3 = "2D:{}/{}ßC {}".format(today_temp_min, today_temp_max, today_rain_text)
             self.weather_4 = "2M:{}/{}ßC {}".format(tomorrow_temp_min, tomorrow_temp_max, tomorrow_rain_text)
