@@ -123,13 +123,13 @@ class StatusPage:
             bar_char_lookup = {48:"\x07",24:"\x06",12:"\x05",6:"\x04",3:"\x03",1.5:"\x02",0.75:"\x01",0:"\x00",-1:".",-2:" "}
             today_rain_text = ""
             for key in today_rain_mm:
-                for threshold in bar_char_lookup:
+                for threshold in reversed(sorted(bar_char_lookup)):
                     if today_rain_mm[key] > threshold:
                         today_rain_text += bar_char_lookup[threshold]
                         break
             tomorrow_rain_text = ""
             for key in tomorrow_rain_mm:
-                for threshold in bar_char_lookup:
+                for threshold in reversed(sorted(bar_char_lookup)):
                     if tomorrow_rain_mm[key] > threshold:
                         tomorrow_rain_text += bar_char_lookup[threshold]
                         break
