@@ -14,6 +14,7 @@ class PageManager:
         self.page_stack_lock = threading.RLock()
         self.pool = ThreadPoolExecutor(5)
         self.stop_running = False
+        self.user_command_queue = []
 
         self.idle_timer = None
 
@@ -27,36 +28,40 @@ class PageManager:
         with self.page_stack_lock:
             self.draw()
         while not self.stop_running:
-            #self.draw()
-            time.sleep(1.1)
+            while len(self.user_command_queue) > 0:
+                user_command = self.user_command_queue.pop()
+                self.reset_idle_timer()
+                with self.page_stack_lock:
+                    if user_command == 'up':
+                        page_command = self.top_page.up()
+                    elif user_command == 'down':
+                        page_command = self.top_page.down()
+                    elif user_command == 'select':
+                        self.user_command_queue.clear()
+                        page_command = self.top_page.select()
+                    elif user_command == 'back':
+                        self.user_command_queue.clear()
+                        page_command = self.top_page.back()
+                    else:
+                        raise ValueError("Unknown command {}".format(user_command))
+                    self.process_page_command(page_command)
+            time.sleep(0.2)
         self.idle_timer.cancel()
 
     def stop(self):
         self.stop_running = True
 
     def up(self):
-        self.reset_idle_timer()
-        with self.page_stack_lock:
-            page_command = self.top_page.up()
-            self.process_page_command(page_command)
+        self.user_command_queue.append('up')
 
     def down(self):
-        self.reset_idle_timer()
-        with self.page_stack_lock:
-            page_command = self.top_page.down()
-            self.process_page_command(page_command)
+        self.user_command_queue.append('down')
 
     def select(self):
-        self.reset_idle_timer()
-        with self.page_stack_lock:
-            page_command = self.top_page.select()
-            self.process_page_command(page_command)
+        self.user_command_queue.append('select')
 
     def back(self):
-        self.reset_idle_timer()
-        with self.page_stack_lock:
-            page_command = self.top_page.back()
-            self.process_page_command(page_command)
+        self.user_command_queue.append('back')
 
     def process_page_command(self, page_command):
         with self.page_stack_lock:
