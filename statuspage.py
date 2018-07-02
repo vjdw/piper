@@ -11,9 +11,9 @@ import requests
 class StatusPage:
     def __init__(self, screen):
         self.screen = screen # raise draw event instead of keeping screen?
-        self.pool = ThreadPoolExecutor(5)
-        self.web_socket_url = "ws://hunchcorn.local:6680/mopidy/ws" 
-        self.ws = create_connection(self.web_socket_url)
+        #self.pool = ThreadPoolExecutor(5)
+        #self.web_socket_url = "ws://hunchcorn.local:6680/mopidy/ws" 
+        #self.ws = create_connection(self.web_socket_url)
         self.update_weather_timer = None
         self.run_update_weather_timer()
 
@@ -94,7 +94,7 @@ class StatusPage:
                         today_temp_max = forecast_temp
                     if today_temp_min > forecast_temp:
                         today_temp_min = forecast_temp
-                    if 'rain' in forecast:
+                    if 'rain' in forecast and '3h' in forecast['rain']:
                         today_rain_mm[forecast_threehourly_index] = forecast['rain']['3h']
                     else:
                         today_rain_mm[forecast_threehourly_index] = 0
@@ -103,7 +103,7 @@ class StatusPage:
                         tomorrow_temp_max = forecast_temp
                     if tomorrow_temp_min > forecast_temp:
                         tomorrow_temp_min = forecast_temp
-                    if 'rain' in forecast:
+                    if 'rain' in forecast and '3h' in forecast['rain']:
                         tomorrow_rain_mm[forecast_threehourly_index] = forecast['rain']['3h']
                     else:
                         tomorrow_rain_mm[forecast_threehourly_index] = 0
