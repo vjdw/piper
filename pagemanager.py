@@ -10,6 +10,7 @@ from pagemanagercommand import PageManagerCommand
 class PageManager:
     def __init__(self, screen, main_page):
         self.screen = screen
+        self.idle_page = StatusPage(self.screen)
         self.page_stack = [main_page]
         self.page_stack_lock = threading.RLock()
         self.pool = ThreadPoolExecutor(5)
@@ -87,7 +88,7 @@ class PageManager:
             self.top_page.draw_to_screen(self.screen)
 
     def display_idle_page(self):
-        self.process_page_command(PageManagerCommand.DisplayPage(StatusPage(self.screen)))
+        self.process_page_command(PageManagerCommand.DisplayPage(self.idle_page))
 
     def reset_idle_timer(self):
         if not self.idle_timer is None:
