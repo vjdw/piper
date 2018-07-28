@@ -120,7 +120,7 @@ class StatusPage:
             # Heavy rain    	precipitation rate is between 4.0 mm/hour and 16.0 mm/hour
             # Very heavy rain   precipitation rate is between 16.0 mm/hour and 50 mm/hour
             # Extreme rain 	    precipitation rate is > 50.0 mm/hour 
-            bar_char_lookup = {48:"\x07",24:"\x06",12:"\x05",6:"\x04",3:"\x03",1.5:"\x02",0.75:"\x01",0:"\x00",-1:".",-2:" "}
+            bar_char_lookup = {48:"\x07",24:"\x06",12:"\x05",6:"\x04",3:"\x03",1.5:"\x02",0.75:"\x01",0:"\x00",-1:" ",-2:"¥"}
             today_rain_text = ""
             for key in today_rain_mm:
                 for threshold in reversed(sorted(bar_char_lookup)):
