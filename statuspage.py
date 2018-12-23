@@ -12,7 +12,7 @@ class StatusPage:
     def __init__(self, screen):
         self.screen = screen # raise draw event instead of keeping screen?
         #self.pool = ThreadPoolExecutor(5)
-        #self.web_socket_url = "ws://hunchcorn.local:6680/mopidy/ws" 
+        #self.web_socket_url = "ws://hunchcorn:6680/mopidy/ws" 
         #self.ws = create_connection(self.web_socket_url)
         self.update_weather_timer = None
         self.run_update_weather_timer()
