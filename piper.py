@@ -85,7 +85,7 @@ def main(win):
     else:
         screen = Screen(20, 4)
 
-    mopidy = MopidyProxy(logger, "http://hunchcorn.local:6680/mopidy/rpc")
+    mopidy = MopidyProxy(logger, "http://hunchcorn:6680/mopidy/rpc")
 
     #webserver = WebServer(menu, mopidy)
     #futures.append(pool.submit(webserver.run))
