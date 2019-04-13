@@ -8,9 +8,10 @@ from statuspage import StatusPage
 from pagemanagercommand import PageManagerCommand
 
 class PageManager:
-    def __init__(self, screen, main_page):
+    def __init__(self, screen, main_page, mopidy):
         self.screen = screen
-        self.idle_page = StatusPage(self.screen)
+        self.mopidy = mopidy
+        self.idle_page = StatusPage(self.screen, mopidy)
         self.page_stack = [main_page]
         self.page_stack_lock = threading.RLock()
         self.pool = ThreadPoolExecutor(5)
@@ -43,6 +44,8 @@ class PageManager:
                     elif user_command == 'back':
                         self.user_command_queue.clear()
                         page_command = self.top_page.back()
+                    elif user_command == 'togglepause':
+                        page_command = self.top_page.togglepause()
                     else:
                         raise ValueError("Unknown command {}".format(user_command))
                     self.process_page_command(page_command)
@@ -63,6 +66,9 @@ class PageManager:
 
     def back(self):
         self.user_command_queue.append('back')
+
+    def togglepause(self):
+        self.user_command_queue.append('togglepause')
 
     def process_page_command(self, page_command):
         with self.page_stack_lock:

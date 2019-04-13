@@ -56,6 +56,9 @@ class MopidyPage:
             self.menu = self.menu.parent_menu
             return PageManagerCommand.RedrawPage()
 
+    def togglepause(self):
+        self.mopidy.toggle_pause()
+
     def draw_to_screen(self, screen):
         # menu bounds check and scrolling
         if self.menu.active_index >= len(self.menu.items):

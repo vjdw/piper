@@ -16,6 +16,9 @@ class MessagePage:
     def back(self):
         pass
 
+    def togglepause(self):
+        pass
+
     def draw_to_screen(self, screen):
         #screen.clear()
         for i,msg in enumerate(self.msgs):

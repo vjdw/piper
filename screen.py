@@ -14,7 +14,7 @@ class Screen:
         self.win.clear()
 
     def write_line(self, text, line):
-        self.win.addstr(line, 0, text[:self.width])
+        self.win.addstr(line, 0, text[:self.width].replace('\x00',''))
         self.refresh()
         
     def refresh(self):

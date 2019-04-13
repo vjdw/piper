@@ -9,8 +9,9 @@ import time
 import requests
 
 class StatusPage:
-    def __init__(self, screen):
+    def __init__(self, screen, mopidy):
         self.screen = screen # raise draw event instead of keeping screen?
+        self.mopidy = mopidy
         #self.pool = ThreadPoolExecutor(5)
         #self.web_socket_url = "ws://hunchcorn:6680/mopidy/ws" 
         #self.ws = create_connection(self.web_socket_url)
@@ -32,6 +33,9 @@ class StatusPage:
 
     def back(self):
         return PageManagerCommand.ClosePage()
+
+    def togglepause(self):
+        self.mopidy.toggle_pause()
 
     def draw_to_screen(self, screen):
         screen.clear()
@@ -67,7 +71,8 @@ class StatusPage:
             # The ß character has the same ASCII value but in the A02 code page, and so gets displayed as a degree symbol.
             self.weather_1 = "{}ßC P:{}mb H:{}%".format(now_temp, pressure, humidity)
             self.weather_2 = description
-        except:
+        except Exception as inst:
+            print("inst")
             isSuccess = False
             self.weather_1 = "weather error"
             self.weather_2 = ""
@@ -141,7 +146,15 @@ class StatusPage:
             self.weather_4 = ""
             isSuccess = False
 
-        self.draw_to_screen(self.screen)
+        try:
+            self.draw_to_screen(self.screen)
+        except:
+            self.weather_1 = "screen error"
+            self.weather_2 = ""
+            self.weather_3 = ""
+            self.weather_4 = ""
+            isSuccess = False
+
         return isSuccess
 
     def to_celsius(self, kelvin):

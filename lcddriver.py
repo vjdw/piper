@@ -103,31 +103,51 @@ class lcd:
     self.write_four_bits(mode | ((cmd << 4) & 0xF0))
 
   def write_line(self, string, line):
-    if line == 0:
-       self.write(0x80)
-    elif line == 1:
-       self.write(0xC0)
-    elif line == 2:
-       self.write(0x94)
-    else: # line == 3
-       self.write(0xD4)
+    try:
+      if line == 0:
+        self.write(0x80)
+      elif line == 1:
+        self.write(0xC0)
+      elif line == 2:
+        self.write(0x94)
+      else: # line == 3
+        self.write(0xD4)
 
-    for char in string:
-       self.write(ord(char), Rs)
+      for char in string:
+        self.write(ord(char), Rs)
+    except:
+      print("failed in lcddriver write_line")
+      pass
 
   def clear(self):
-    """clear lcd and set to home"""
-    self.write(LCD_CLEARDISPLAY)
-    self.write(LCD_RETURNHOME)
+    try:
+      """clear lcd and set to home"""
+      self.write(LCD_CLEARDISPLAY)
+      self.write(LCD_RETURNHOME)
+    except:
+      print("failed in lcddriver clear")
+      pass
 
   def backlight_off(self):
-    """turn off backlight, anything that calls write turns it on again"""
-    self.device.write_cmd(LCD_NOBACKLIGHT)
+    try:
+      """turn off backlight, anything that calls write turns it on again"""
+      self.device.write_cmd(LCD_NOBACKLIGHT)
+    except:
+      print("failed in lcddriver backlight_off")
+      pass
 
   def display_off(self):
-    """turn off the text display"""
-    self.write(LCD_DISPLAYCONTROL | LCD_DISPLAYOFF)
+    try:
+      """turn off the text display"""
+      self.write(LCD_DISPLAYCONTROL | LCD_DISPLAYOFF)
+    except:
+      print("failed in lcddriver display_off")
+      pass
 
   def display_on(self):
-    """turn on the text display"""
-    self.write(LCD_DISPLAYCONTROL | LCD_DISPLAYON)
+    try:
+      """turn on the text display"""
+      self.write(LCD_DISPLAYCONTROL | LCD_DISPLAYON)
+    except:
+      print("failed in lcddriver display_on")
+      pass

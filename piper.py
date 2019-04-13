@@ -8,7 +8,7 @@ from time import sleep
 from logger import Logger
 from menu import Menu
 from menu import MenuItem
-from mopidyproxy import MopidyProxy    
+from mopidyproxy import MopidyProxy
 from mopidypage import MopidyPage
 from pagemanager import PageManager
 #from webserver import WebServer
@@ -40,6 +40,10 @@ def back_callback(channel):
     global page_manager
     page_manager.back()
 
+def togglepause_callback(channel):
+    global page_manager
+    page_manager.togglepause()
+
 def configure_lcd(lcd):
     segs = [
         [0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111],
@@ -63,7 +67,7 @@ def configure_gpio():
         24:down_callback,
         9:up_callback,
         14:back_callback,
-        20:select_callback
+        20:togglepause_callback
     }
     for buttonPin in pinButtonLookup:
         button = Button(buttonPin, pull_up=False, bounce_time=0.05)
@@ -91,7 +95,7 @@ def main(win):
     #futures.append(pool.submit(webserver.run))
 
     main_page = MopidyPage(mopidy, screen.width)
-    page_manager = PageManager(screen, main_page)
+    page_manager = PageManager(screen, main_page, mopidy)
     futures.append(pool.submit(page_manager.run))
 
     while True:
