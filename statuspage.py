@@ -81,7 +81,14 @@ class StatusPage:
             forecastUrl = 'https://api.openweathermap.org/data/2.5/forecast?id={}&APPID={}'.format(cityId, apiKey)
             forecastResponse = requests.get(url=forecastUrl)
             today = time.localtime().tm_yday
-            tomorrow = today + 1 # wrap round 365/366 days
+            tomorrow = today + 1
+            
+            # wrap round 365/366 days
+            if(tomorrow == 367 and year%4==0 and (year%100!=0 or year%400==0)):
+                tomorrow = 1
+            elif tomorrow == 366:
+                tomorrow = 1
+            
             today_temp_max = -999
             today_temp_min = 999
             today_rain_mm = {0:-1,1:-1,2:-1,3:-1,4:-1,5:-1,6:-1,7:-1}
