@@ -94,13 +94,11 @@ class MopidyPage:
         menuitem_radio = MenuItem("Radio")
         menuitem_radio.child_menu = Menu([
             menuitem_radmac,
+            MenuItem("BBC Radio 6", "core.tracklist.add", "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_6music_mf_p"),
             MenuItem("Classic FM", "core.tracklist.add", "tunein:station:s8439"),
-            MenuItem("BBC Radio 2", "core.tracklist.add", "tunein:station:s24940"),
-            MenuItem("BBC Radio 3", "core.tracklist.add", "tunein:station:s24941"),
-            MenuItem("BBC Radio 4", "core.tracklist.add", "tunein:station:s25419"),
-            MenuItem("BBC Radio 6", "core.tracklist.add", "tunein:station:s44491"),        
-            MenuItem("BBC Sussex", "core.tracklist.add", "tunein:station:s46590"),
-            MenuItem("Eagle Radio", "core.tracklist.add", "tunein:station:s45515")
+            MenuItem("BBC Radio 2", "core.tracklist.add", "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio2_mf_p"),
+            MenuItem("BBC Radio 3", "core.tracklist.add", "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio3_mf_p"),
+            MenuItem("BBC Radio 4", "core.tracklist.add", "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio4fm_mf_p")
         ])
 
         menuitem_playlists = MenuItem("Playlists")
