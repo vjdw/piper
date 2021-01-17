@@ -9,12 +9,15 @@ class MopidyProxy:
     def post(self, method, trackUri=None):
         req = urllib.request.Request(self.endpoint)
         req.add_header('Content-Type', 'application/json')
-
         paramsJson = ""
         if not trackUri is None:
-            paramsJson = ", \"params\":{{\"uri\":\"{0}\"}}".format(trackUri)
+            if method == "core.tracklist.add":
+                paramsJson = ", \"params\":{{\"uris\":[\"{0}\"]}}".format(trackUri)
+            else:
+                paramsJson = ", \"params\":{{\"uri\":\"{0}\"}}".format(trackUri)
         jsondata = "{{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"{0}\"{1}}}".format(method, paramsJson)
         
+        #print(jsondata)
         jsondataasbytes = jsondata.encode('utf-8')
         self.logger.write(jsondata)
         req.add_header('Content-Length', len(jsondataasbytes))
