@@ -87,7 +87,7 @@ class MopidyPage:
             screen.write_line('{}{}{}'.format(left_cursor, lineText, right_cursor), screen_row_index)
 
     def arrange_menus(self):
-        menuitem_radmac = MenuItem("RadMac", "custom.virtualmenu.listtracksaturi", "file:///media/data/get-iplayer-downloads")
+        menuitem_radmac = MenuItem("RadMac", "custom.virtualmenu.listtracksaturi", "file:///srv/data/get-iplayer-downloads")
         # Dummy menu so that >> gets displayed
         menuitem_radmac.child_menu = Menu([])
 
