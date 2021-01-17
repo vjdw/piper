@@ -142,7 +142,7 @@ class MopidyPage:
         return Menu(menu_items)
 
     def menu_for_playlists(self):
-        response = self.mopidy.post("core.playlists.get_playlists")
+        response = self.mopidy.post("core.playlists.as_list")
         response_json = json.loads(response)
         sorted_response_json = sorted(response_json["result"], key=lambda x: x["name"])
         menu_items = list(map(
