@@ -8,7 +8,7 @@ class MopidyProxy:
 
     def post(self, method, trackUri=None):
         req = urllib.request.Request(self.endpoint)
-        req.add_header('Content-Type', 'application/json; charset=utf-8')
+        req.add_header('Content-Type', 'application/json')
 
         paramsJson = ""
         if not trackUri is None:
@@ -52,7 +52,7 @@ class MopidyProxy:
         playlist_track_uris_json = json.dumps(playlist_track_uris)
 
         req = urllib.request.Request(self.endpoint)
-        req.add_header('Content-Type', 'application/json; charset=utf-8')
+        req.add_header('Content-Type', 'application/json')
 
         paramsJson = ""
         paramsJson = ", \"params\":{{\"uris\":{0}}}".format(playlist_track_uris_json)
