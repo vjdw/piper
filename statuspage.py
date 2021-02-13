@@ -88,7 +88,7 @@ class StatusPage:
                 tomorrow = 1
             elif tomorrow == 366:
                 tomorrow = 1
-            
+
             today_temp_max = -999
             today_temp_min = 999
             today_rain_mm = {0:-1,1:-1,2:-1,3:-1,4:-1,5:-1,6:-1,7:-1}
@@ -146,8 +146,17 @@ class StatusPage:
                         tomorrow_rain_text += bar_char_lookup[threshold]
                         break
 
-            self.weather_3 = "2D:{}/{}ßC {}".format(today_temp_min, today_temp_max, today_rain_text)
-            self.weather_4 = "2M:{}/{}ßC {}".format(tomorrow_temp_min, tomorrow_temp_max, tomorrow_rain_text)
+            # For calculating right-padding on temperatures before rainchart
+            max_temp_chars = 9
+
+            today_temp_formatted = "{}/{}ßC".format(today_temp_min, today_temp_max)
+            today_temp_formatted = today_temp_formatted + (" " * (max_temp_chars - len(today_temp_formatted)))
+            self.weather_3 = "2D:{}{}".format(today_temp_formatted, today_rain_text)
+            
+            tomorrow_temp_formatted = "{}/{}ßC".format(tomorrow_temp_min, tomorrow_temp_max)
+            tomorrow_temp_formatted = tomorrow_temp_formatted + (" " * (max_temp_chars - len(tomorrow_temp_formatted)))
+            self.weather_4 = "2M:{}{}".format(tomorrow_temp_formatted, tomorrow_rain_text)
+
         except:
             self.weather_3 = "forecast error"
             self.weather_4 = ""
